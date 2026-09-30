@@ -569,17 +569,46 @@
     // Appliquer le thème au chargement
     setTheme(getTheme());
 
-    // ==================== STORAGE ====================
-    function getFiches() {
+    // ==================== STORAGE (JSONBin) ====================
+    const JSONBIN_API_KEY = "$2a$10$1IcPwMjgj9LvadQunGWwBetMdTNhmAmMN1Efxk8ZheIhzgQNgluCu";
+    const JSONBIN_BIN_ID  = "6abd177effd5d160533f421e";
+
+    async function getFiches() {
       try {
-        return JSON.parse(localStorage.getItem('munition_fiches') || '[]');
-      } catch {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+          headers: { "X-Master-Key": JSONBIN_API_KEY }
+        });
+        if (!res.ok) throw new Error("Erreur lecture JSONBin");
+        const data = await res.json();
+        // data.record peut être un tableau ou un objet { fiches: [...] }
+        if (Array.isArray(data.record)) return data.record;
+        if (data.record && Array.isArray(data.record.fiches)) return data.record.fiches;
+        return [];
+      } catch (e) {
+        console.error("Erreur chargement fiches :", e);
         return [];
       }
     }
 
-    function saveFiches(fiches) {
-      localStorage.setItem('munition_fiches', JSON.stringify(fiches));
+    async function saveFiches(fiches) {
+      try {
+        // Toujours enregistrer sous forme d'objet { fiches: [...] }
+        // (JSONBin refuse un tableau vide [])
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Master-Key": JSONBIN_API_KEY
+          },
+          body: JSON.stringify({ fiches: fiches })
+        });
+        if (!res.ok) throw new Error("Erreur sauvegarde JSONBin");
+        return true;
+      } catch (e) {
+        console.error("Erreur sauvegarde fiches :", e);
+        alert("Erreur lors de la sauvegarde sur JSONBin !");
+        return false;
+      }
     }
 
     function isLoggedIn() {
@@ -592,8 +621,8 @@
     }
 
     // ==================== EXPORT / IMPORT ====================
-    function exportBackup() {
-      const fiches = getFiches();
+    async function exportBackup() {
+      const fiches = await getFiches();
       const data = {
         version: 1,
         exportedAt: new Date().toISOString(),
@@ -617,7 +646,7 @@
 
     function importBackup(file) {
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = async function(e) {
         try {
           const data = JSON.parse(e.target.result);
           let fiches = [];
@@ -634,8 +663,8 @@
             return;
           }
 
-          saveFiches(fiches);
-          renderFicheList();
+          await saveFiches(fiches);
+          await renderFicheList();
           showBackupMsg('Import réussi : ' + fiches.length + ' fiche(s) restaurée(s)', 'success');
         } catch (err) {
           showBackupMsg('Erreur : fichier invalide', 'error');
@@ -680,11 +709,11 @@
     const loginMsg = document.getElementById('loginMsg');
     const adminPassword = document.getElementById('adminPassword');
 
-    function updateAdminView() {
+    async function updateAdminView() {
       if (isLoggedIn()) {
         loginBox.classList.add('hidden');
         adminPanel.classList.add('visible');
-        renderFicheList();
+        await renderFicheList();
       } else {
         loginBox.classList.remove('hidden');
         adminPanel.classList.remove('visible');
@@ -710,15 +739,15 @@
       if (e.key === 'Enter') loginBtn.click();
     });
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      const fiches = getFiches();
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      const fiches = await getFiches();
       if (fiches.length > 0) {
         if (confirm('Voulez-vous télécharger une sauvegarde avant de quitter ?')) {
-          exportBackup();
+          await exportBackup();
         }
       }
       setLoggedIn(false);
-      updateAdminView();
+      await updateAdminView();
     });
 
     document.getElementById('exportBtn').addEventListener('click', exportBackup);
@@ -735,7 +764,7 @@
     const addForm = document.getElementById('addForm');
     const addMsg = document.getElementById('addMsg');
 
-    addForm.addEventListener('submit', (e) => {
+    addForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!isLoggedIn()) return;
 
@@ -753,21 +782,22 @@
         createdAt: new Date().toISOString()
       };
 
-      const fiches = getFiches();
+      const fiches = await getFiches();
       fiches.unshift(fiche);
-      saveFiches(fiches);
+      const ok = await saveFiches(fiches);
+      if (!ok) return;
 
       addForm.reset();
       addMsg.className = 'status-msg success';
       addMsg.textContent = 'Fiche ajoutée avec succès';
       setTimeout(() => addMsg.className = 'status-msg', 2500);
 
-      renderFicheList();
+      await renderFicheList();
     });
 
     // ==================== LISTE DES FICHES ====================
-    function renderFicheList() {
-      const fiches = getFiches();
+    async function renderFicheList() {
+      const fiches = await getFiches();
       const list = document.getElementById('ficheList');
       const count = document.getElementById('ficheCount');
 
@@ -796,14 +826,14 @@
       `).join('');
     }
 
-    function deleteFiche(id) {
+    async function deleteFiche(id) {
       if (!isLoggedIn()) return;
       if (!confirm('Supprimer cette fiche ?')) return;
 
-      let fiches = getFiches();
+      let fiches = await getFiches();
       fiches = fiches.filter(f => f.id !== id);
-      saveFiches(fiches);
-      renderFicheList();
+      await saveFiches(fiches);
+      await renderFicheList();
     }
 
     // ==================== RECHERCHE ====================
@@ -828,9 +858,9 @@
       searchBtn.disabled = true;
       searchBtn.innerHTML = `<svg class="spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Recherche...`;
 
-      setTimeout(() => {
+      setTimeout(async () => {
         const query = Object.fromEntries(filled);
-        const fiches = getFiches();
+        const fiches = await getFiches();
 
         const matches = fiches.filter(f => {
           return Object.entries(query).every(([key, value]) => {
@@ -878,8 +908,8 @@
     }
 
     window.addEventListener('beforeunload', (e) => {
-      const fiches = getFiches();
-      if (fiches.length > 0 && isLoggedIn()) {
+      // Note: beforeunload ne peut pas attendre async proprement
+      if (isLoggedIn()) {
         e.preventDefault();
         e.returnValue = '';
       }
