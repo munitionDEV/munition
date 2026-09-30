@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Munition — Recherche</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== THÈME VIOLET (défaut) ===== */
+    :root, [data-theme="violet"] {
+      --bg: #0B0D14;
+      --card: #0d0d1a;
+      --border: rgba(139, 92, 246, 0.25);
+      --accent: #8B5CF6;
+      --accent-2: #22D3EE;
+      --accent-dark: #6D28D9;
+      --accent-light: #A78BFA;
+      --glow: rgba(109, 40, 217, 0.12);
+      --glow-2: rgba(34, 211, 238, 0.08);
+      --btn-gradient: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+      --btn-shadow: rgba(124, 58, 237, 0.4);
+      --badge-bg: rgba(139, 92, 246, 0.1);
+      --badge-border: rgba(139, 92, 246, 0.25);
+      --badge-text: #C4B5FD;
+      --nav-active-bg: rgba(139, 92, 246, 0.15);
+      --nav-active-border: rgba(139, 92, 246, 0.4);
+      --focus-border: rgba(139, 92, 246, 0.6);
+      --focus-bg: rgba(139, 92, 246, 0.06);
+      --focus-shadow: rgba(139, 92, 246, 0.15);
+      --title-gradient: linear-gradient(135deg, #8B5CF6 0%, #22D3EE 100%);
+      --text: #C9CDD8;
+      --muted: #6B7280;
+      --white: #FFFFFF;
+    }
+
+    /* ===== THÈME ROUGE ===== */
+    [data-theme="rouge"] {
+      --bg: #0F0A0A;
+      --card: #1A0F0F;
+      --border: rgba(239, 68, 68, 0.28);
+      --accent: #EF4444;
+      --accent-2: #F97316;
+      --accent-dark: #B91C1C;
+      --accent-light: #F87171;
+      --glow: rgba(185, 28, 28, 0.15);
+      --glow-2: rgba(249, 115, 22, 0.08);
+      --btn-gradient: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+      --btn-shadow: rgba(220, 38, 38, 0.45);
+      --badge-bg: rgba(239, 68, 68, 0.12);
+      --badge-border: rgba(239, 68, 68, 0.3);
+      --badge-text: #FCA5A5;
+      --nav-active-bg: rgba(239, 68, 68, 0.15);
+      --nav-active-border: rgba(239, 68, 68, 0.45);
+      --focus-border: rgba(239, 68, 68, 0.65);
+      --focus-bg: rgba(239, 68, 68, 0.08);
+      --focus-shadow: rgba(239, 68, 68, 0.18);
+      --title-gradient: linear-gradient(135deg, #EF4444 0%, #F97316 100%);
+      --text: #E5D5D5;
+      --muted: #7A6565;
+      --white: #FFFFFF;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      position: relative;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .bg-glows {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+    }
+    .bg-glows::before {
+      content: '';
+      position: absolute; top: -30%; left: -15%; width: 65%; height: 65%;
+      background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+      filter: blur(80px);
+      transition: background 0.4s ease;
+    }
+    .bg-glows::after {
+      content: '';
+      position: absolute; bottom: -20%; right: -10%; width: 55%; height: 55%;
+      background: radial-gradient(circle, var(--glow-2) 0%, transparent 70%);
+      filter: blur(80px);
+      transition: background 0.4s ease;
+    }
+
+    .container {
+      position: relative; z-index: 1;
+      max-width: 720px; margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    .header { text-align: center; margin-bottom: 36px; }
+
+    .top-bar {
+      display: flex; justify-content: flex-end; margin-bottom: 16px;
+    }
+
+    .theme-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 14px; border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text); font-size: 0.8rem; font-weight: 500;
+      cursor: pointer; transition: all 0.2s; font-family: inherit;
+    }
+    .theme-btn:hover {
+      background: var(--nav-active-bg);
+      border-color: var(--nav-active-border);
+    }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 9999px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      color: var(--badge-text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 500;
+      margin-bottom: 24px;
+      transition: all 0.3s ease;
+    }
+    .badge .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #34D399; animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.6rem, 7vw, 4rem);
+      font-weight: 700; letter-spacing: -0.03em;
+      color: var(--white); margin-bottom: 12px;
+    }
+    h1 span {
+      background: var(--title-gradient);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 1rem; font-weight: 300; color: #8892A4;
+      margin-bottom: 6px;
+    }
+    .subtitle-small {
+      font-size: 0.85rem; color: var(--muted); margin-bottom: 28px;
+    }
+
+    .nav {
+      display: flex; justify-content: center; gap: 10px;
+      margin-bottom: 28px;
+    }
+    .nav-btn {
+      padding: 8px 18px; border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text); font-size: 0.85rem; font-weight: 500;
+      cursor: pointer; transition: all 0.2s; font-family: inherit;
+    }
+    .nav-btn:hover, .nav-btn.active {
+      background: var(--nav-active-bg);
+      border-color: var(--nav-active-border);
+      color: var(--badge-text);
+    }
+
+    .card {
+      background: rgba(13, 13, 26, 0.75);
+      border: 1px solid var(--border);
+      border-radius: 20px; padding: 26px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 0 60px var(--glow);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    [data-theme="rouge"] .card {
+      background: rgba(26, 15, 15, 0.8);
+    }
+
+    .section-title {
+      font-size: 0.8rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--accent-light); margin-bottom: 18px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-title::before {
+      content: ''; width: 4px; height: 16px;
+      background: linear-gradient(to bottom, var(--accent), var(--accent-2));
+      border-radius: 2px;
+    }
+
+    .grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px; margin-bottom: 16px;
+    }
+    @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 0.75rem; font-weight: 500; color: #9CA3AF;
+    }
+    [data-theme="rouge"] label { color: #A89090; }
+
+    input, textarea {
+      width: 100%; padding: 12px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; color: var(--white);
+      font-family: inherit; font-size: 0.95rem;
+      outline: none; transition: all 0.2s;
+    }
+    input::placeholder, textarea::placeholder { color: #4B5563; }
+    input:focus, textarea:focus {
+      border-color: var(--focus-border);
+      background: var(--focus-bg);
+      box-shadow: 0 0 0 3px var(--focus-shadow);
+    }
+    textarea { resize: vertical; min-height: 70px; }
+
+    .actions {
+      display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;
+    }
+    @media (max-width: 480px) { .actions { flex-direction: column; } }
+
+    .btn {
+      flex: 1; display: inline-flex; align-items: center;
+      justify-content: center; gap: 8px;
+      padding: 13px 18px; border-radius: 12px;
+      font-weight: 600; font-size: 0.95rem;
+      cursor: pointer; border: none;
+      transition: all 0.2s; font-family: inherit;
+      min-width: 120px;
+    }
+    .btn-primary {
+      background: var(--btn-gradient);
+      color: white; box-shadow: 0 4px 20px var(--btn-shadow);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.1);
+    }
+    .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.07); }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #F87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.25); }
+
+    .btn-success {
+      background: rgba(52, 211, 153, 0.12);
+      color: #34D399;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+    .btn-success:hover { background: rgba(52, 211, 153, 0.2); }
+
+    .results { margin-top: 24px; display: none; }
+    .results.visible { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .results-header {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 14px;
+    }
+    .results-title { font-size: 0.9rem; font-weight: 600; color: var(--accent-light); }
+    .results-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem; color: #34D399;
+    }
+
+    .result-card, .fiche-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 16px;
+      margin-bottom: 12px; transition: border-color 0.2s;
+    }
+    .result-card:hover, .fiche-card:hover {
+      border-color: var(--border);
+    }
+
+    .result-row {
+      display: flex; justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.9rem;
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-label { color: var(--muted); font-size: 0.8rem; }
+    .result-value {
+      color: var(--white); font-weight: 500;
+      text-align: right; word-break: break-all;
+    }
+
+    .empty-state {
+      text-align: center; padding: 28px 16px;
+      color: var(--muted); font-size: 0.95rem;
+    }
+
+    .admin-panel { display: none; }
+    .admin-panel.visible { display: block; }
+
+    .login-box { max-width: 360px; margin: 0 auto; }
+
+    .fiche-list { margin-top: 24px; }
+
+    .fiche-actions {
+      display: flex; gap: 8px; margin-top: 12px;
+    }
+    .fiche-actions .btn { flex: none; padding: 8px 14px; font-size: 0.8rem; }
+
+    .status-msg {
+      margin-top: 12px; padding: 10px 14px;
+      border-radius: 10px; font-size: 0.85rem;
+      display: none;
+    }
+    .status-msg.success {
+      display: block;
+      background: rgba(52, 211, 153, 0.1);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      color: #34D399;
+    }
+    .status-msg.error {
+      display: block;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #F87171;
+    }
+
+    .backup-box {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-top: 16px; padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .backup-box .btn { flex: 1; min-width: 140px; font-size: 0.85rem; padding: 11px 14px; }
+
+    .spin { animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .hidden { display: none !important; }
+    input[type="file"] { display: none; }
+  </style>
+</head>
+<body>
+  <div class="bg-glows"></div>
+
+  <div class="container">
+    <div class="top-bar">
+      <button class="theme-btn" id="themeBtn" title="Changer de thème">
+        <span id="themeIcon">🔴</span>
+        <span id="themeLabel">Thème Rouge</span>
+      </button>
+    </div>
+
+    <div class="header">
+      <div class="badge">
+        <span class="dot"></span>
+        Système de recherche actif
+      </div>
+      <h1>Muni<span>tion</span></h1>
+      <p class="subtitle">Plateforme de recherche multi-critères</p>
+      <p class="subtitle-small">Accès restreint pour l'ajout de fiches</p>
+    </div>
+
+    <div class="nav">
+      <button class="nav-btn active" data-view="search">Recherche</button>
+      <button class="nav-btn" data-view="admin">Administration</button>
+    </div>
+
+    <!-- VUE RECHERCHE -->
+    <div id="view-search">
+      <div class="card">
+        <div class="section-title">Recherche</div>
+
+        <form id="searchForm">
+          <div class="grid">
+            <div class="field">
+              <label>Nom</label>
+              <input type="text" name="nom" placeholder="Dupont" autocomplete="off">
+            </div>
+            <div class="field">
+              <label>Prénom</label>
+              <input type="text" name="prenom" placeholder="Jean" autocomplete="off">
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" name="email" placeholder="j.dupont@mail.fr" autocomplete="off">
+            </div>
+            <div class="field">
+              <label>Téléphone</label>
+              <input type="tel" name="telephone" placeholder="+33 6 12 34 56 78" autocomplete="off">
+            </div>
+            <div class="field">
+              <label>Ville</label>
+              <input type="text" name="ville" placeholder="Paris" autocomplete="off">
+            </div>
+            <div class="field">
+              <label>Code postal</label>
+              <input type="text" name="cp" placeholder="75001" autocomplete="off">
+            </div>
+            <div class="field full">
+              <label>Discord ID / Username</label>
+              <input type="text" name="discord" placeholder="123456789012345678" autocomplete="off">
+            </div>
+            <div class="field full">
+              <label>Note / Info supplémentaire</label>
+              <input type="text" name="note" placeholder="Recherche libre..." autocomplete="off">
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-primary" id="searchBtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+              </svg>
+              Rechercher
+            </button>
+            <button type="button" class="btn btn-secondary" id="resetSearchBtn">Effacer</button>
+          </div>
+        </form>
+
+        <div class="results" id="results">
+          <div class="results-header">
+            <div class="results-title">Résultats</div>
+            <div class="results-count" id="resultsCount"></div>
+          </div>
+          <div id="resultsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VUE ADMIN -->
+    <div id="view-admin" class="hidden">
+      <div class="card login-box" id="loginBox">
+        <div class="section-title">Accès Administration</div>
+        <p style="font-size:0.9rem;color:#8892A4;margin-bottom:18px;">
+          Seul le propriétaire peut ajouter ou modifier des fiches.
+        </p>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Mot de passe</label>
+          <input type="password" id="adminPassword" placeholder="••••••••" autocomplete="off">
+        </div>
+        <button class="btn btn-primary" id="loginBtn" style="width:100%;">
+          Se connecter
+        </button>
+        <div class="status-msg" id="loginMsg"></div>
+      </div>
+
+      <div class="admin-panel" id="adminPanel">
+        <div class="card">
+          <div class="section-title">Ajouter une fiche</div>
+
+          <form id="addForm">
+            <div class="grid">
+              <div class="field">
+                <label>Nom *</label>
+                <input type="text" name="nom" required placeholder="Dupont">
+              </div>
+              <div class="field">
+                <label>Prénom</label>
+                <input type="text" name="prenom" placeholder="Jean">
+              </div>
+              <div class="field">
+                <label>Email</label>
+                <input type="email" name="email" placeholder="j.dupont@mail.fr">
+              </div>
+              <div class="field">
+                <label>Téléphone</label>
+                <input type="tel" name="telephone" placeholder="+33 6 12 34 56 78">
+              </div>
+              <div class="field">
+                <label>Ville</label>
+                <input type="text" name="ville" placeholder="Paris">
+              </div>
+              <div class="field">
+                <label>Code postal</label>
+                <input type="text" name="cp" placeholder="75001">
+              </div>
+              <div class="field full">
+                <label>Discord ID / Username</label>
+                <input type="text" name="discord" placeholder="JeanD#4521">
+              </div>
+              <div class="field full">
+                <label>Note / Informations</label>
+                <textarea name="note" placeholder="Infos supplémentaires..."></textarea>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="submit" class="btn btn-primary">Ajouter la fiche</button>
+              <button type="button" class="btn btn-secondary" id="logoutBtn">Déconnexion</button>
+            </div>
+            <div class="status-msg" id="addMsg"></div>
+          </form>
+
+          <div class="backup-box">
+            <button type="button" class="btn btn-success" id="exportBtn">
+              💾 Télécharger sauvegarde
+            </button>
+            <button type="button" class="btn btn-secondary" id="importBtn">
+              📂 Importer sauvegarde
+            </button>
+            <input type="file" id="importFile" accept=".json">
+          </div>
+          <div class="status-msg" id="backupMsg"></div>
+        </div>
+
+        <div class="card" style="margin-top:20px;">
+          <div class="section-title">
+            Fiches enregistrées
+            <span id="ficheCount" style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:#34D399;"></span>
+          </div>
+          <div id="ficheList" class="fiche-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_PASSWORD = "munition2026";
+
+    // ==================== THÈME ====================
+    function getTheme() {
+      return localStorage.getItem('munition_theme') || 'violet';
+    }
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('munition_theme', theme);
+      updateThemeBtn(theme);
+    }
+
+    function updateThemeBtn(theme) {
+      const icon = document.getElementById('themeIcon');
+      const label = document.getElementById('themeLabel');
+      if (theme === 'rouge') {
+        icon.textContent = '🟣';
+        label.textContent = 'Thème Violet';
+      } else {
+        icon.textContent = '🔴';
+        label.textContent = 'Thème Rouge';
+      }
+    }
+
+    document.getElementById('themeBtn').addEventListener('click', () => {
+      const current = getTheme();
+      setTheme(current === 'violet' ? 'rouge' : 'violet');
+    });
+
+    // Appliquer le thème au chargement
+    setTheme(getTheme());
+
+    // ==================== STORAGE ====================
+    function getFiches() {
+      try {
+        return JSON.parse(localStorage.getItem('munition_fiches') || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveFiches(fiches) {
+      localStorage.setItem('munition_fiches', JSON.stringify(fiches));
+    }
+
+    function isLoggedIn() {
+      return sessionStorage.getItem('munition_admin') === '1';
+    }
+
+    function setLoggedIn(value) {
+      if (value) sessionStorage.setItem('munition_admin', '1');
+      else sessionStorage.removeItem('munition_admin');
+    }
+
+    // ==================== EXPORT / IMPORT ====================
+    function exportBackup() {
+      const fiches = getFiches();
+      const data = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        count: fiches.length,
+        fiches: fiches
+      };
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const date = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `munition-sauvegarde-${date}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showBackupMsg('Sauvegarde téléchargée (' + fiches.length + ' fiche' + (fiches.length > 1 ? 's' : '') + ')', 'success');
+    }
+
+    function importBackup(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          let fiches = [];
+
+          if (Array.isArray(data)) {
+            fiches = data;
+          } else if (data.fiches && Array.isArray(data.fiches)) {
+            fiches = data.fiches;
+          } else {
+            throw new Error('Format invalide');
+          }
+
+          if (!confirm('Importer ' + fiches.length + ' fiche(s) ?\nCela remplacera les fiches actuelles.')) {
+            return;
+          }
+
+          saveFiches(fiches);
+          renderFicheList();
+          showBackupMsg('Import réussi : ' + fiches.length + ' fiche(s) restaurée(s)', 'success');
+        } catch (err) {
+          showBackupMsg('Erreur : fichier invalide', 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function showBackupMsg(text, type) {
+      const el = document.getElementById('backupMsg');
+      el.className = 'status-msg ' + type;
+      el.textContent = text;
+      setTimeout(() => el.className = 'status-msg', 4000);
+    }
+
+    // ==================== NAVIGATION ====================
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const viewSearch = document.getElementById('view-search');
+    const viewAdmin = document.getElementById('view-admin');
+
+    navBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        navBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const view = btn.dataset.view;
+        if (view === 'search') {
+          viewSearch.classList.remove('hidden');
+          viewAdmin.classList.add('hidden');
+        } else {
+          viewSearch.classList.add('hidden');
+          viewAdmin.classList.remove('hidden');
+          updateAdminView();
+        }
+      });
+    });
+
+    // ==================== LOGIN ====================
+    const loginBox = document.getElementById('loginBox');
+    const adminPanel = document.getElementById('adminPanel');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginMsg = document.getElementById('loginMsg');
+    const adminPassword = document.getElementById('adminPassword');
+
+    function updateAdminView() {
+      if (isLoggedIn()) {
+        loginBox.classList.add('hidden');
+        adminPanel.classList.add('visible');
+        renderFicheList();
+      } else {
+        loginBox.classList.remove('hidden');
+        adminPanel.classList.remove('visible');
+      }
+    }
+
+    loginBtn.addEventListener('click', () => {
+      if (adminPassword.value === ADMIN_PASSWORD) {
+        setLoggedIn(true);
+        loginMsg.className = 'status-msg success';
+        loginMsg.textContent = 'Connexion réussie';
+        setTimeout(() => {
+          loginMsg.className = 'status-msg';
+          updateAdminView();
+        }, 600);
+      } else {
+        loginMsg.className = 'status-msg error';
+        loginMsg.textContent = 'Mot de passe incorrect';
+      }
+    });
+
+    adminPassword.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') loginBtn.click();
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      const fiches = getFiches();
+      if (fiches.length > 0) {
+        if (confirm('Voulez-vous télécharger une sauvegarde avant de quitter ?')) {
+          exportBackup();
+        }
+      }
+      setLoggedIn(false);
+      updateAdminView();
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', exportBackup);
+    document.getElementById('importBtn').addEventListener('click', () => {
+      document.getElementById('importFile').click();
+    });
+    document.getElementById('importFile').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) importBackup(file);
+      e.target.value = '';
+    });
+
+    // ==================== AJOUT DE FICHE ====================
+    const addForm = document.getElementById('addForm');
+    const addMsg = document.getElementById('addMsg');
+
+    addForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!isLoggedIn()) return;
+
+      const data = Object.fromEntries(new FormData(addForm));
+      const fiche = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+        nom: data.nom.trim(),
+        prenom: (data.prenom || '').trim(),
+        email: (data.email || '').trim(),
+        telephone: (data.telephone || '').trim(),
+        ville: (data.ville || '').trim(),
+        cp: (data.cp || '').trim(),
+        discord: (data.discord || '').trim(),
+        note: (data.note || '').trim(),
+        createdAt: new Date().toISOString()
+      };
+
+      const fiches = getFiches();
+      fiches.unshift(fiche);
+      saveFiches(fiches);
+
+      addForm.reset();
+      addMsg.className = 'status-msg success';
+      addMsg.textContent = 'Fiche ajoutée avec succès';
+      setTimeout(() => addMsg.className = 'status-msg', 2500);
+
+      renderFicheList();
+    });
+
+    // ==================== LISTE DES FICHES ====================
+    function renderFicheList() {
+      const fiches = getFiches();
+      const list = document.getElementById('ficheList');
+      const count = document.getElementById('ficheCount');
+
+      count.textContent = fiches.length + ' fiche' + (fiches.length > 1 ? 's' : '');
+
+      if (fiches.length === 0) {
+        list.innerHTML = `<div class="empty-state">Aucune fiche enregistrée pour le moment.</div>`;
+        return;
+      }
+
+      list.innerHTML = fiches.map(f => `
+        <div class="fiche-card">
+          <div class="result-row">
+            <span class="result-label">Nom</span>
+            <span class="result-value">${f.prenom} ${f.nom}</span>
+          </div>
+          ${f.email ? `<div class="result-row"><span class="result-label">Email</span><span class="result-value">${f.email}</span></div>` : ''}
+          ${f.telephone ? `<div class="result-row"><span class="result-label">Téléphone</span><span class="result-value">${f.telephone}</span></div>` : ''}
+          ${f.ville ? `<div class="result-row"><span class="result-label">Ville</span><span class="result-value">${f.ville}${f.cp ? ' ('+f.cp+')' : ''}</span></div>` : ''}
+          ${f.discord ? `<div class="result-row"><span class="result-label">Discord</span><span class="result-value">${f.discord}</span></div>` : ''}
+          ${f.note ? `<div class="result-row"><span class="result-label">Note</span><span class="result-value">${f.note}</span></div>` : ''}
+          <div class="fiche-actions">
+            <button class="btn btn-danger" onclick="deleteFiche('${f.id}')">Supprimer</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function deleteFiche(id) {
+      if (!isLoggedIn()) return;
+      if (!confirm('Supprimer cette fiche ?')) return;
+
+      let fiches = getFiches();
+      fiches = fiches.filter(f => f.id !== id);
+      saveFiches(fiches);
+      renderFicheList();
+    }
+
+    // ==================== RECHERCHE ====================
+    const searchForm = document.getElementById('searchForm');
+    const searchBtn = document.getElementById('searchBtn');
+    const resultsBox = document.getElementById('results');
+    const resultsList = document.getElementById('resultsList');
+    const resultsCount = document.getElementById('resultsCount');
+
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const data = Object.fromEntries(new FormData(searchForm));
+      const filled = Object.entries(data).filter(([_, v]) => v.trim() !== '');
+
+      if (filled.length === 0) {
+        alert('Remplis au moins un champ.');
+        return;
+      }
+
+      const original = searchBtn.innerHTML;
+      searchBtn.disabled = true;
+      searchBtn.innerHTML = `<svg class="spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Recherche...`;
+
+      setTimeout(() => {
+        const query = Object.fromEntries(filled);
+        const fiches = getFiches();
+
+        const matches = fiches.filter(f => {
+          return Object.entries(query).every(([key, value]) => {
+            const val = (f[key] || '').toLowerCase();
+            return val.includes(value.toLowerCase());
+          });
+        });
+
+        showResults(matches);
+        searchBtn.disabled = false;
+        searchBtn.innerHTML = original;
+      }, 600);
+    });
+
+    document.getElementById('resetSearchBtn').addEventListener('click', () => {
+      searchForm.reset();
+      resultsBox.classList.remove('visible');
+      resultsList.innerHTML = '';
+    });
+
+    function showResults(matches) {
+      resultsBox.classList.add('visible');
+
+      if (matches.length === 0) {
+        resultsCount.textContent = '0 résultat';
+        resultsList.innerHTML = `<div class="empty-state">Aucun résultat trouvé.</div>`;
+        return;
+      }
+
+      resultsCount.textContent = matches.length + ' résultat' + (matches.length > 1 ? 's' : '');
+
+      resultsList.innerHTML = matches.map(f => `
+        <div class="result-card">
+          <div class="result-row">
+            <span class="result-label">Nom complet</span>
+            <span class="result-value">${f.prenom} ${f.nom}</span>
+          </div>
+          ${f.email ? `<div class="result-row"><span class="result-label">Email</span><span class="result-value">${f.email}</span></div>` : ''}
+          ${f.telephone ? `<div class="result-row"><span class="result-label">Téléphone</span><span class="result-value">${f.telephone}</span></div>` : ''}
+          ${f.ville ? `<div class="result-row"><span class="result-label">Ville</span><span class="result-value">${f.ville}${f.cp ? ' ('+f.cp+')' : ''}</span></div>` : ''}
+          ${f.discord ? `<div class="result-row"><span class="result-label">Discord</span><span class="result-value">${f.discord}</span></div>` : ''}
+          ${f.note ? `<div class="result-row"><span class="result-label">Note</span><span class="result-value">${f.note}</span></div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    window.addEventListener('beforeunload', (e) => {
+      const fiches = getFiches();
+      if (fiches.length > 0 && isLoggedIn()) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+
+    updateAdminView();
+  </script>
+</body>
+</html>
