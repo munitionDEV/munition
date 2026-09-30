@@ -47,22 +47,72 @@
     }
 
     .bg-glows {
-      position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
-    }
-    .bg-glows::before {
-      content: '';
-      position: absolute; top: -30%; left: -15%; width: 65%; height: 65%;
-      background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
-      filter: blur(80px);
-      transition: background 0.4s ease;
-    }
-    .bg-glows::after {
-      content: '';
-      position: absolute; bottom: -20%; right: -10%; width: 55%; height: 55%;
-      background: radial-gradient(circle, var(--glow-2) 0%, transparent 70%);
-      filter: blur(80px);
-      transition: background 0.4s ease;
-    }
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.bg-glows::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  left: -15%;
+  width: 65%;
+  height: 65%;
+  background: radial-gradient(
+    circle,
+    var(--glow) 0%,
+    transparent 70%
+  );
+  filter: blur(80px);
+  animation: glowMove1 8s ease-in-out infinite alternate;
+}
+
+.bg-glows::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  right: -10%;
+  width: 55%;
+  height: 55%;
+  background: radial-gradient(
+    circle,
+    var(--glow-2) 0%,
+    transparent 70%
+  );
+  filter: blur(80px);
+  animation: glowMove2 10s ease-in-out infinite alternate;
+}
+
+@keyframes glowMove1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(80px, 40px) scale(1.12);
+  }
+
+  100% {
+    transform: translate(-30px, 80px) scale(1);
+  }
+}
+
+@keyframes glowMove2 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(-70px, -50px) scale(1.15);
+  }
+
+  100% {
+    transform: translate(30px, -80px) scale(1);
+  }
+}
 
     .container {
       position: relative; z-index: 1;
