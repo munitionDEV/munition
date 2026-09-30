@@ -8,43 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* ===== THÈME ROUGE (unique) ===== */
-    :root {
-      --bg: #0F0A0A;
-      --card: #1A0F0F;
-      --border: rgba(239, 68, 68, 0.28);
-      --accent: #EF4444;
-      --accent-2: #F97316;
-      --accent-dark: #B91C1C;
-      --accent-light: #F87171;
-      --glow: rgba(185, 28, 28, 0.15);
-      --glow-2: rgba(249, 115, 22, 0.08);
-      --btn-gradient: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
-      --btn-shadow: rgba(220, 38, 38, 0.45);
-      --badge-bg: rgba(239, 68, 68, 0.12);
-      --badge-border: rgba(239, 68, 68, 0.3);
-      --badge-text: #FCA5A5;
-      --nav-active-bg: rgba(239, 68, 68, 0.15);
-      --nav-active-border: rgba(239, 68, 68, 0.45);
-      --focus-border: rgba(239, 68, 68, 0.65);
-      --focus-bg: rgba(239, 68, 68, 0.08);
-      --focus-shadow: rgba(239, 68, 68, 0.18);
-      --title-gradient: linear-gradient(135deg, #EF4444 0%, #F97316 100%);
-      --text: #E5D5D5;
-      --muted: #7A6565;
-      --white: #FFFFFF;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      position: relative;
-      transition: background 0.3s ease, color 0.3s ease;
-    }
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -190,6 +153,44 @@ document.getElementById("start").addEventListener("click", () => {
 
 </body>
 </html>
+    /* ===== THÈME ROUGE (unique) ===== */
+    :root {
+      --bg: #0F0A0A;
+      --card: #1A0F0F;
+      --border: rgba(239, 68, 68, 0.28);
+      --accent: #EF4444;
+      --accent-2: #F97316;
+      --accent-dark: #B91C1C;
+      --accent-light: #F87171;
+      --glow: rgba(185, 28, 28, 0.15);
+      --glow-2: rgba(249, 115, 22, 0.08);
+      --btn-gradient: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+      --btn-shadow: rgba(220, 38, 38, 0.45);
+      --badge-bg: rgba(239, 68, 68, 0.12);
+      --badge-border: rgba(239, 68, 68, 0.3);
+      --badge-text: #FCA5A5;
+      --nav-active-bg: rgba(239, 68, 68, 0.15);
+      --nav-active-border: rgba(239, 68, 68, 0.45);
+      --focus-border: rgba(239, 68, 68, 0.65);
+      --focus-bg: rgba(239, 68, 68, 0.08);
+      --focus-shadow: rgba(239, 68, 68, 0.18);
+      --title-gradient: linear-gradient(135deg, #EF4444 0%, #F97316 100%);
+      --text: #E5D5D5;
+      --muted: #7A6565;
+      --white: #FFFFFF;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      position: relative;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
     .bg-glows {
   position: fixed;
   inset: 0;
