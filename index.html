@@ -960,6 +960,102 @@
     });
 
     updateAdminView();
+    // ==================== SON HACKER "DOX" ====================
+
+let doxBuffer = "";
+let doxTimeout;
+
+document.addEventListener("keydown", (e) => {
+  // Ignore les touches spéciales
+  if (e.key.length !== 1) return;
+
+  doxBuffer += e.key.toLowerCase();
+
+  // Garde seulement les 3 dernières lettres
+  doxBuffer = doxBuffer.slice(-3);
+
+  clearTimeout(doxTimeout);
+  doxTimeout = setTimeout(() => {
+    doxBuffer = "";
+  }, 1000);
+
+  if (doxBuffer === "dox") {
+    jouerSonHacker();
+    doxBuffer = "";
+  }
+});
+
+function jouerSonHacker() {
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  const audio = new AudioContext();
+
+  const maintenant = audio.currentTime;
+
+  // Petit bip de démarrage
+  const osc1 = audio.createOscillator();
+  const gain1 = audio.createGain();
+
+  osc1.type = "square";
+  osc1.frequency.setValueAtTime(180, maintenant);
+  osc1.frequency.exponentialRampToValueAtTime(850, maintenant + 0.12);
+
+  gain1.gain.setValueAtTime(0.0001, maintenant);
+  gain1.gain.exponentialRampToValueAtTime(0.12, maintenant + 0.02);
+  gain1.gain.exponentialRampToValueAtTime(0.0001, maintenant + 0.15);
+
+  osc1.connect(gain1);
+  gain1.connect(audio.destination);
+
+  osc1.start(maintenant);
+  osc1.stop(maintenant + 0.15);
+
+  // Série de sons "terminal"
+  const frequences = [420, 620, 300, 900, 520, 760, 380];
+
+  frequences.forEach((freq, i) => {
+    const osc = audio.createOscillator();
+    const gain = audio.createGain();
+
+    const start = maintenant + 0.16 + i * 0.07;
+
+    osc.type = "square";
+    osc.frequency.setValueAtTime(freq, start);
+
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.07, start + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.055);
+
+    osc.connect(gain);
+    gain.connect(audio.destination);
+
+    osc.start(start);
+    osc.stop(start + 0.06);
+  });
+
+  // Son final plus grave
+  const finalOsc = audio.createOscillator();
+  const finalGain = audio.createGain();
+
+  const finalStart = maintenant + 0.75;
+
+  finalOsc.type = "sawtooth";
+  finalOsc.frequency.setValueAtTime(180, finalStart);
+  finalOsc.frequency.exponentialRampToValueAtTime(70, finalStart + 0.3);
+
+  finalGain.gain.setValueAtTime(0.0001, finalStart);
+  finalGain.gain.exponentialRampToValueAtTime(0.13, finalStart + 0.03);
+  finalGain.gain.exponentialRampToValueAtTime(0.0001, finalStart + 0.35);
+
+  finalOsc.connect(finalGain);
+  finalGain.connect(audio.destination);
+
+  finalOsc.start(finalStart);
+  finalOsc.stop(finalStart + 0.4);
+
+  setTimeout(() => {
+    audio.close();
+  }, 1500);
+}
   </script>
 </body>
 </html>
