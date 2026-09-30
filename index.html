@@ -879,17 +879,7 @@
         } else {
           viewSearch.classList.add('hidden');
           viewAdmin.classList.remove('hidden');
-          // ==================== ÉCRAN D'ACCUEIL ====================
-    const welcomeScreen = document.getElementById('welcomeScreen');
-    const startBtn = document.getElementById('startBtn');
-
-    startBtn.addEventListener('click', () => {
-      startBtn.disabled = true;
-      welcomeScreen.classList.add('hide');
-      setTimeout(() => welcomeScreen.remove(), 850);
-    });
-
-    updateAdminView();
+          updateAdminView();
         }
       });
     });
@@ -1131,6 +1121,16 @@
       }
     });
 
+    // ==================== ÉCRAN D'ACCUEIL ====================
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const startBtn = document.getElementById('startBtn');
+
+    startBtn.addEventListener('click', () => {
+      startBtn.disabled = true;
+      welcomeScreen.classList.add('hide');
+      setTimeout(() => welcomeScreen.remove(), 850);
+    });
+
     updateAdminView();
     // ==================== SON HACKER "DOX" ====================
 
@@ -1230,4 +1230,5 @@ function jouerSonHacker() {
 }
   </script>
 </body>
+</html>
 </html>
